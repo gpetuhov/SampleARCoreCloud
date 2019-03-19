@@ -47,6 +47,9 @@ dependencies {
 
     // KAndroid
     implementation 'com.pawegio.kandroid:kandroid:0.8.8@aar'
+
+    // Timber
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 }
 
 

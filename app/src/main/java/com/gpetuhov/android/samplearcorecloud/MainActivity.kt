@@ -16,11 +16,15 @@ import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.TransformableNode
 import com.pawegio.kandroid.toast
 import kotlinx.android.synthetic.main.activity_main.*
+import com.google.ar.sceneform.FrameTime
+import timber.log.Timber
+
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         const val MIN_OPENGL_VERSION = 3.0
+        const val TAG = "MainActivity"
     }
 
     // NONE by default, HOSTING when hosting the Anchor and HOSTED when the anchor is done hosting
@@ -48,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         arFragment = supportFragmentManager.findFragmentById(R.id.arFragment) as CustomArFragment
+        arFragment?.arSceneView?.scene?.addOnUpdateListener(::onUpdateFrame)
 
         loadModel()
         initArFragment()
@@ -105,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Place objects only on horizontal facing upward planes
-        if (plane.type !== Plane.Type.HORIZONTAL_UPWARD_FACING) {
+        if (plane.type != Plane.Type.HORIZONTAL_UPWARD_FACING) {
             return
         }
 
@@ -121,6 +126,7 @@ class MainActivity : AppCompatActivity() {
         setCloudAnchor(anchor)
 
         appAnchorState = AppAnchorState.HOSTING
+        Timber.tag(TAG).d("Start hosting anchor")
 
         val anchorNode = AnchorNode(anchor)
         anchorNode.setParent(arFragment?.arSceneView?.scene)
@@ -136,5 +142,27 @@ class MainActivity : AppCompatActivity() {
     private fun setCloudAnchor(newAnchor: Anchor?) {
         cloudAnchor?.detach()
         cloudAnchor = newAnchor
+        appAnchorState = AppAnchorState.NONE
+    }
+
+    private fun onUpdateFrame(frameTime: FrameTime) {
+        checkUpdatedAnchor()
+    }
+
+    // Check cloud anchor state on every frame update
+    private fun checkUpdatedAnchor() {
+        if (appAnchorState == AppAnchorState.HOSTING) {
+            val cloudState = cloudAnchor?.cloudAnchorState
+
+            if (cloudState?.isError == true) {
+                Timber.tag(TAG).d("Error hosting anchor.. $cloudState")
+                appAnchorState = AppAnchorState.NONE
+            } else if (cloudState == Anchor.CloudAnchorState.SUCCESS) {
+                // Hosting can take 30 seconds or more
+                // (do not expect immediate response)
+                Timber.tag(TAG).d("Anchor hosted with id %s", cloudAnchor?.cloudAnchorId)
+                appAnchorState = AppAnchorState.HOSTED
+            }
+        }
     }
 }

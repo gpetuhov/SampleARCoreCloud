@@ -13,6 +13,7 @@ Learn how to use ARCore Cloud Anchors with Sceneform.
 * Cloud Anchors expire after 24 hours
 * Project must have Google Cloud API
 * ARCore Cloud Anchor API must be enabled
+* Hosting can take 30 seconds or more
 
 ## 3D Models used
 Halloween Pumpkin by Neil Realubit:
