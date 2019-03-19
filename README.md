@@ -1,5 +1,5 @@
 # SampleARCoreCloud
-Learn how to use ARCore Cloud Anchors with Sceneform.
+Learn how to use ARCore Cloud Anchors with Sceneform. In this example we save ID of the hosted anchor to the Shared Preferences and use it to restore the anchore after the scene has been cleared or after app restart.
 
 ## Requirements
 * Android Studio 3.5 Canary 7
