@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val MIN_OPENGL_VERSION = 3.0
-        const val TAG = "MainActivity"
         const val CLOUD_ANCHOR_ID_KEY = "CloudAnchorId"
     }
 
@@ -33,7 +32,9 @@ class MainActivity : AppCompatActivity() {
     private enum class AppAnchorState {
         NONE,
         HOSTING,
-        HOSTED
+        HOSTED,
+        RESOLVING,
+        RESOLVED
     }
 
     private var arFragment: CustomArFragment? = null
@@ -159,11 +160,15 @@ class MainActivity : AppCompatActivity() {
 
     // Check cloud anchor state on every frame update
     private fun checkUpdatedAnchor() {
-        if (appAnchorState == AppAnchorState.HOSTING) {
-            val cloudState = cloudAnchor?.cloudAnchorState
+        if (appAnchorState != AppAnchorState.HOSTING && appAnchorState != AppAnchorState.RESOLVING) {
+            return
+        }
 
+        val cloudState = cloudAnchor?.cloudAnchorState
+
+        if (appAnchorState == AppAnchorState.HOSTING) {
             if (cloudState?.isError == true) {
-                toast("Error hosting anchor.. $cloudState")
+                toast("Error hosting anchor $cloudState")
                 appAnchorState = AppAnchorState.NONE
             } else if (cloudState == Anchor.CloudAnchorState.SUCCESS) {
                 // Hosting can take 30 seconds or more
@@ -172,11 +177,21 @@ class MainActivity : AppCompatActivity() {
                 toast("Anchor hosted with id $cloudAnchorId")
                 appAnchorState = AppAnchorState.HOSTED
 
-                // In this example we save Cloud Anchor ID in shared preference.
+                // In this example we save Cloud Anchor ID in shared preference
+                // (ID of the most recently hosted anchor).
                 // To share Cloud Anchor ID across different devices, it can be written to Firestore.
                 if (cloudAnchorId != null) {
                     defaultSharedPreferences.edit { putString(CLOUD_ANCHOR_ID_KEY, cloudAnchorId) }
                 }
+            }
+
+        } else if (appAnchorState == AppAnchorState.RESOLVING) {
+            if (cloudState?.isError == true) {
+                toast("Error resolving anchor $cloudState")
+                appAnchorState = AppAnchorState.NONE
+            } else if (cloudState == Anchor.CloudAnchorState.SUCCESS){
+                toast("Anchor resolved successfully")
+                appAnchorState = AppAnchorState.RESOLVED
             }
         }
     }
@@ -187,14 +202,18 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // Get ID of the most recently hosted anchor from the shared prefs
         val cloudAnchorId = defaultSharedPreferences.getString(CLOUD_ANCHOR_ID_KEY, "")
 
         if (cloudAnchorId != "") {
             try {
+                // This should be wrapped inside try-catch,
+                // because can raise exceptions (for example, NotTrackingException).
                 val resolvedAnchor = arFragment?.arSceneView?.session?.resolveCloudAnchor(cloudAnchorId)
                 setCloudAnchor(resolvedAnchor)
                 placeObject()
                 toast("Now Resolving Anchor...")
+                appAnchorState = AppAnchorState.RESOLVING
             } catch (e: Exception) {
                 toast("Error Resolving Anchor")
             }
