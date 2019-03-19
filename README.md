@@ -1,5 +1,5 @@
 # SampleARCoreCloud
-Learn how to use Cloud Anchors with ARCore Cloud Anchors Codelab.
+Learn how to use ARCore Cloud Anchors with Sceneform.
 
 ## Requirements
 * Android Studio 3.5 Canary 7
@@ -21,5 +21,7 @@ https://poly.google.com/view/2Z1UzUc0No4
 
 ## References
 https://developers.google.com/ar/develop/java/cloud-anchors/overview-android
+
+https://medium.com/@ardeploy/build-shared-augmented-reality-experience-for-android-using-sceneform-and-arcore-cloud-anchors-29ae1c55bea7
 
 https://codelabs.developers.google.com/codelabs/arcore-cloud-anchors/#0
