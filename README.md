@@ -14,6 +14,8 @@ Learn how to use ARCore Cloud Anchors with Sceneform.
 * Project must have Google Cloud API
 * ARCore Cloud Anchor API must be enabled
 * Hosting can take 30 seconds or more
+* Anchors are stored in ARCore Cloud Anchor API, NOT in Firebase
+* Firebase can be used to share IDs of the hosted Cloud Anchors
 
 ## 3D Models used
 Halloween Pumpkin by Neil Realubit:

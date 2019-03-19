@@ -8,6 +8,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
+import androidx.core.content.edit
 import com.google.ar.core.Anchor
 import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
@@ -17,6 +18,7 @@ import com.google.ar.sceneform.ux.TransformableNode
 import com.pawegio.kandroid.toast
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.ar.sceneform.FrameTime
+import com.pawegio.kandroid.defaultSharedPreferences
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val MIN_OPENGL_VERSION = 3.0
         const val TAG = "MainActivity"
+        const val CLOUD_ANCHOR_ID_KEY = "CloudAnchorId"
     }
 
     // NONE by default, HOSTING when hosting the Anchor and HOSTED when the anchor is done hosting
@@ -58,6 +61,7 @@ class MainActivity : AppCompatActivity() {
 
         // Clear current anchor by detaching it
         clearButton.setOnClickListener { setCloudAnchor(null) }
+        resolveButton.setOnClickListener { resolveAnchor() }
     }
 
     /**
@@ -104,10 +108,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onPlaneTap(hitResult: HitResult, plane: Plane, motionEvent: MotionEvent) {
-        if (modelRenderable == null) {
-            return
-        }
-
         // Place objects only on horizontal facing upward planes
         if (plane.type != Plane.Type.HORIZONTAL_UPWARD_FACING) {
             return
@@ -119,6 +119,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Create the Anchor at the place of the tap and start hosting it
+        // (cloud Anchors are hosted in ARCore Cloud Anchor API, NOT in Firebase).
         val anchor = arFragment?.arSceneView?.session?.hostCloudAnchor(hitResult.createAnchor())
 
         // Detach previously attached anchor, if exists
@@ -127,7 +128,15 @@ class MainActivity : AppCompatActivity() {
         appAnchorState = AppAnchorState.HOSTING
         toast("Start hosting anchor")
 
-        val anchorNode = AnchorNode(anchor)
+        placeObject()
+    }
+
+    private fun placeObject() {
+        if (modelRenderable == null || cloudAnchor == null) {
+            return
+        }
+
+        val anchorNode = AnchorNode(cloudAnchor)
         anchorNode.setParent(arFragment?.arSceneView?.scene)
 
         // Create the transformable model and add it to the anchor.
@@ -159,9 +168,33 @@ class MainActivity : AppCompatActivity() {
             } else if (cloudState == Anchor.CloudAnchorState.SUCCESS) {
                 // Hosting can take 30 seconds or more
                 // (do not expect immediate response)
-                toast("Anchor hosted with id " + cloudAnchor?.cloudAnchorId)
+                val cloudAnchorId = cloudAnchor?.cloudAnchorId
+                toast("Anchor hosted with id $cloudAnchorId")
                 appAnchorState = AppAnchorState.HOSTED
+
+                // In this example we save Cloud Anchor ID in shared preference.
+                // To share Cloud Anchor ID across different devices, it can be written to Firestore.
+                if (cloudAnchorId != null) {
+                    defaultSharedPreferences.edit { putString(CLOUD_ANCHOR_ID_KEY, cloudAnchorId) }
+                }
             }
+        }
+    }
+
+    private fun resolveAnchor() {
+        if (cloudAnchor != null){
+            toast("Please clear Anchor")
+            return
+        }
+
+        val cloudAnchorId = defaultSharedPreferences.getString(CLOUD_ANCHOR_ID_KEY, "")
+
+        if (cloudAnchorId != "") {
+            // TODO: wrap in try-catch
+            val resolvedAnchor = arFragment?.arSceneView?.session?.resolveCloudAnchor(cloudAnchorId)
+            setCloudAnchor(resolvedAnchor)
+            placeObject()
+            toast("Now Resolving Anchor...")
         }
     }
 }
