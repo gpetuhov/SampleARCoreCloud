@@ -190,11 +190,14 @@ class MainActivity : AppCompatActivity() {
         val cloudAnchorId = defaultSharedPreferences.getString(CLOUD_ANCHOR_ID_KEY, "")
 
         if (cloudAnchorId != "") {
-            // TODO: wrap in try-catch
-            val resolvedAnchor = arFragment?.arSceneView?.session?.resolveCloudAnchor(cloudAnchorId)
-            setCloudAnchor(resolvedAnchor)
-            placeObject()
-            toast("Now Resolving Anchor...")
+            try {
+                val resolvedAnchor = arFragment?.arSceneView?.session?.resolveCloudAnchor(cloudAnchorId)
+                setCloudAnchor(resolvedAnchor)
+                placeObject()
+                toast("Now Resolving Anchor...")
+            } catch (e: Exception) {
+                toast("Error Resolving Anchor")
+            }
         }
     }
 }
