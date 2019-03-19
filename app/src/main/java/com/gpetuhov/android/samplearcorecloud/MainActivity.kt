@@ -15,6 +15,7 @@ import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.TransformableNode
 import com.pawegio.kandroid.toast
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +42,8 @@ class MainActivity : AppCompatActivity() {
 
         loadModel()
         initArFragment()
+
+        clearButton.setOnClickListener { setCloudAnchor(null) }
     }
 
     /**
@@ -113,7 +116,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Ensure that there is only one cloudAnchor in the activity at any point of time
-    private fun setCloudAnchor(newAnchor: Anchor) {
+    private fun setCloudAnchor(newAnchor: Anchor?) {
         cloudAnchor?.detach()
         cloudAnchor = newAnchor
     }
