@@ -8,6 +8,10 @@ Learn how to use Cloud Anchors with ARCore Cloud Anchors Codelab.
 * Gradle wrapper 5.2.1
 * AAPT 2
 
+## Notes
+* Devices must be in the same physical environment as the original hosting device
+* Cloud Anchors expire after 24 hours
+
 ## References
 https://developers.google.com/ar/develop/java/cloud-anchors/overview-android
 
