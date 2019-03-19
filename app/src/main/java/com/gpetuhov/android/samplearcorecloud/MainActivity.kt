@@ -23,11 +23,20 @@ class MainActivity : AppCompatActivity() {
         const val MIN_OPENGL_VERSION = 3.0
     }
 
+    // NONE by default, HOSTING when hosting the Anchor and HOSTED when the anchor is done hosting
+    private enum class AppAnchorState {
+        NONE,
+        HOSTING,
+        HOSTED
+    }
+
     private var arFragment: CustomArFragment? = null
     private var modelRenderable: ModelRenderable? = null
 
     // Currently attached anchor
     private var cloudAnchor: Anchor? = null
+
+    private var appAnchorState = AppAnchorState.NONE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         loadModel()
         initArFragment()
 
+        // Clear current anchor by detaching it
         clearButton.setOnClickListener { setCloudAnchor(null) }
     }
 
@@ -99,11 +109,18 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Create the Anchor at the place of the tap.
-        val anchor = hitResult.createAnchor()
+        // Add anchor if not hosted or hosting only
+        if (appAnchorState != AppAnchorState.NONE) {
+            return
+        }
+
+        // Create the Anchor at the place of the tap and start hosting it
+        val anchor = arFragment?.arSceneView?.session?.hostCloudAnchor(hitResult.createAnchor())
 
         // Detach previously attached anchor, if exists
         setCloudAnchor(anchor)
+
+        appAnchorState = AppAnchorState.HOSTING
 
         val anchorNode = AnchorNode(anchor)
         anchorNode.setParent(arFragment?.arSceneView?.scene)
