@@ -12,6 +12,11 @@ Learn how to use Cloud Anchors with ARCore Cloud Anchors Codelab.
 * Devices must be in the same physical environment as the original hosting device
 * Cloud Anchors expire after 24 hours
 
+## 3D Models used
+Halloween Pumpkin by Neil Realubit:
+
+https://poly.google.com/view/2Z1UzUc0No4
+
 ## References
 https://developers.google.com/ar/develop/java/cloud-anchors/overview-android
 
