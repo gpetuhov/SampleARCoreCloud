@@ -5,6 +5,9 @@
     <!-- Always needed for AR. -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Needed to host Anchors -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <!-- Indicates that app requires ARCore ("AR Required"). Ensures app is only
          visible in the Google Play Store on devices that support ARCore. -->
     <uses-feature android:name="android.hardware.camera.ar" />
@@ -21,6 +24,11 @@
         <!-- Indicates that app requires ARCore ("AR Required"). Causes Google
              Play Store to download and install ARCore when the app is installed. -->
         <meta-data android:name="com.google.ar.core" android:value="required" />
+
+        <!-- API key for ARCore Cloud Anchor -->
+        <meta-data
+                android:name="com.google.android.ar.API_KEY"
+                android:value="AIzaSyBlcbv_C0malGTmQDyHHpJOTAkSokMKB_s"/>
 
         <activity android:name=".MainActivity"
                   android:configChanges="orientation|screenSize"

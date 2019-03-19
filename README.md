@@ -11,6 +11,8 @@ Learn how to use Cloud Anchors with ARCore Cloud Anchors Codelab.
 ## Notes
 * Devices must be in the same physical environment as the original hosting device
 * Cloud Anchors expire after 24 hours
+* Project must have Google Cloud API
+* ARCore Cloud Anchor API must be enabled
 
 ## 3D Models used
 Halloween Pumpkin by Neil Realubit:
