@@ -8,11 +8,11 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
+import com.google.ar.core.Anchor
 import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.rendering.ModelRenderable
-import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
 import com.pawegio.kandroid.toast
 
@@ -22,8 +22,11 @@ class MainActivity : AppCompatActivity() {
         const val MIN_OPENGL_VERSION = 3.0
     }
 
-    private var arFragment: ArFragment? = null
+    private var arFragment: CustomArFragment? = null
     private var modelRenderable: ModelRenderable? = null
+
+    // Currently attached anchor
+    private var cloudAnchor: Anchor? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        arFragment = supportFragmentManager.findFragmentById(R.id.arFragment) as ArFragment
+        arFragment = supportFragmentManager.findFragmentById(R.id.arFragment) as CustomArFragment
 
         loadModel()
         initArFragment()
@@ -88,8 +91,17 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // Place objects only on horizontal facing upward planes
+        if (plane.type !== Plane.Type.HORIZONTAL_UPWARD_FACING) {
+            return
+        }
+
         // Create the Anchor at the place of the tap.
         val anchor = hitResult.createAnchor()
+
+        // Detach previously attached anchor, if exists
+        setCloudAnchor(anchor)
+
         val anchorNode = AnchorNode(anchor)
         anchorNode.setParent(arFragment?.arSceneView?.scene)
 
@@ -98,5 +110,11 @@ class MainActivity : AppCompatActivity() {
         model.setParent(anchorNode)
         model.renderable = modelRenderable
         model.select()
+    }
+
+    // Ensure that there is only one cloudAnchor in the activity at any point of time
+    private fun setCloudAnchor(newAnchor: Anchor) {
+        cloudAnchor?.detach()
+        cloudAnchor = newAnchor
     }
 }
