@@ -17,7 +17,6 @@ import com.google.ar.sceneform.ux.TransformableNode
 import com.pawegio.kandroid.toast
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.ar.sceneform.FrameTime
-import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
@@ -126,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         setCloudAnchor(anchor)
 
         appAnchorState = AppAnchorState.HOSTING
-        Timber.tag(TAG).d("Start hosting anchor")
+        toast("Start hosting anchor")
 
         val anchorNode = AnchorNode(anchor)
         anchorNode.setParent(arFragment?.arSceneView?.scene)
@@ -155,12 +154,12 @@ class MainActivity : AppCompatActivity() {
             val cloudState = cloudAnchor?.cloudAnchorState
 
             if (cloudState?.isError == true) {
-                Timber.tag(TAG).d("Error hosting anchor.. $cloudState")
+                toast("Error hosting anchor.. $cloudState")
                 appAnchorState = AppAnchorState.NONE
             } else if (cloudState == Anchor.CloudAnchorState.SUCCESS) {
                 // Hosting can take 30 seconds or more
                 // (do not expect immediate response)
-                Timber.tag(TAG).d("Anchor hosted with id %s", cloudAnchor?.cloudAnchorId)
+                toast("Anchor hosted with id " + cloudAnchor?.cloudAnchorId)
                 appAnchorState = AppAnchorState.HOSTED
             }
         }
